@@ -8,6 +8,9 @@ env:
   AZURE_WEBAPP_NAME: cloudskillsjs    # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '12.x'                # set this to the node version to use
+  RESOURCE_GROUP_NAME: 'AZ-400'
+  APP_SERVICE_PLAN: 'cloudskillsjsplan'
+  APP_SERVICE: 'cloudskillsjs'
 
 jobs:
   build-and-deploy:
@@ -18,11 +21,24 @@ jobs:
       uses: Azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Create Azure App Service Plan
+      uses: Azure/cli@1.0.4
+      with:
+        inlineScript: az appservice plan create -g ${{ env.RESOURCE_GROUP_NAME }} -n ${{ APP_SERVICE_PLAN }}
+      
+    - name: Create Azure App Service
+      uses: Azure/cli@1.0.4
+      with:
+        inlineScript: az webapp create -g ${{ env.RESOURCE_GROUP_NAME }} -p ${{ APP_SERVICE_PLAN }} -n ${{ APP_SERVICE }}
+
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ env.NODE_VERSION }}
+      
+    - name: Use Node.js ${{ env.NODE_VERSION }}  
       uses: actions/setup-node@v1
       with:
         node-version: ${{ env.NODE_VERSION }}
+        
     - name: npm install, build, and test
       run: |
         # Build and test the project, then
@@ -30,6 +46,7 @@ jobs:
         npm install
         npm run build --if-present
         npm run test --if-present
+        
     - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v2
       with:
