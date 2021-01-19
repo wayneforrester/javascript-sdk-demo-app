@@ -26,7 +26,7 @@ jobs:
     - name: Create Azure App Service
       uses: Azure/cli@1.0.4
       with:
-        inlineScript: az webapp create -g ${{ env.RESOURCE_GROUP_NAME }} -p ${{ .env.APP_SERVICE_PLAN }} -n ${{ env.APP_SERVICE }}
+        inlineScript: az webapp create -g ${{ env.RESOURCE_GROUP_NAME }} -p ${{ env.APP_SERVICE_PLAN }} -n ${{ env.APP_SERVICE }}
 
     - uses: actions/checkout@v2
       
