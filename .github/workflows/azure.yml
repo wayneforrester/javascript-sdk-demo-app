@@ -12,20 +12,20 @@ jobs:
   build-and-deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        node-version: [12.x]
         
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
+    
+    - name: Use Node.js
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+        node-version: '12.13.0'
+
+    - name: npm install, build, and test
+      run: |
+        npm install
+        npm run build --if-present
+        npm run test --if-present
     
     - name: Azure Login
       uses: Azure/login@v1
@@ -35,27 +35,12 @@ jobs:
     - name: Create Azure App Service Plan
       uses: Azure/cli@1.0.4
       with:
-        inlineScript: az appservice plan create -g ${{ env.RESOURCE_GROUP_NAME }} -n ${{ env.APP_SERVICE_PLAN }}
+        inlineScript: az appservice plan create -g ${{ env.RESOURCE_GROUP_NAME }} -n ${{ env.APP_SERVICE_PLAN }} --is-linux
       
     - name: Create Azure App Service
       uses: Azure/cli@1.0.4
       with:
         inlineScript: az webapp create -g ${{ env.RESOURCE_GROUP_NAME }} -p ${{ env.APP_SERVICE_PLAN }} -n ${{ env.APP_SERVICE }}
-
-    - uses: actions/checkout@v2
-      
-    - name: Use Node.js ${{ env.NODE_VERSION }}  
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        
-    - name: npm install, build, and test
-      run: |
-        # Build and test the project, then
-        # deploy to Azure Web App.
-        npm install
-        npm run build --if-present
-        npm run test --if-present
         
     - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v2
