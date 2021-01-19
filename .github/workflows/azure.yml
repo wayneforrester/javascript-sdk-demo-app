@@ -1,8 +1,4 @@
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: workflow_dispatch
 
 env:
   AZURE_WEBAPP_NAME: cloudskillsjs    # set this to your application's name
